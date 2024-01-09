@@ -1,0 +1,293 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Horse Racing Betting Service",
+    "version": "1.0.0",
+    "description": "API for a horse racing betting service where users can place bets, check races and view horse performances."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000/",
+      "description": "Local development server"
+    }
+  ],
+  "paths": {
+    "/api/public/races": {
+      "get": {
+        "summary": "List all races",
+        "operationId": "listRaces",
+        "responses": {
+          "200": {
+            "description": "An array of races",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Race"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/public/races/{raceId}": {
+      "get": {
+        "summary": "Get a specific race",
+        "operationId": "getRace",
+        "parameters": [
+          {
+            "name": "raceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A single race with details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Race"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Race not found"
+          }
+        }
+      }
+    },
+    "/api/public/horses": {
+      "get": {
+        "summary": "List all horses",
+        "operationId": "listHorses",
+        "responses": {
+          "200": {
+            "description": "An array of horses",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Horse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/private/bets": {
+      "post": {
+        "summary": "Place a bet on a horse in a race",
+        "operationId": "placeBet",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Bet"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Bet successfully placed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Bet"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input"
+          }
+        }
+      }
+    },
+    "/api/private/bets/{userId}": {
+      "get": {
+        "summary": "List all bets placed by a user",
+        "operationId": "listUserBets",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "An array of bets placed by the user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Bet"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "email"
+        ]
+      },
+      "Horse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "breed": {
+            "type": "string",
+            "nullable": true
+          },
+          "birthDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
+      "Race": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "location": {
+            "type": "string"
+          },
+          "scheduledAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "location",
+          "scheduledAt"
+        ]
+      },
+      "Performance": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "position": {
+            "type": "integer",
+            "nullable": true
+          },
+          "time": {
+            "type": "number",
+            "nullable": true
+          },
+          "horseId": {
+            "type": "integer"
+          },
+          "raceId": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "horseId",
+          "raceId"
+        ]
+      },
+      "Bet": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "betType": {
+            "$ref": "#/components/schemas/BetType"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "raceId": {
+            "type": "integer"
+          },
+          "horseId": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "amount",
+          "betType",
+          "userId",
+          "raceId",
+          "horseId"
+        ]
+      },
+      "BetType": {
+        "type": "string",
+        "enum": [
+          "WIN",
+          "PLACE",
+          "SHOW"
+        ]
+      }
+    }
+  }
+}
