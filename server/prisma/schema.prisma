@@ -8,54 +8,46 @@ generator client {
 }
 
 model User {
-  id    String  @id @default(uuid())
-  email String  @unique
-  name  String?
-  bets  Bet[]
+  id         String    @id @default(uuid())
+  email      String    @unique
+  name       String
+  posts      Post[]
+  likes      Like[]
+  comments   Comment[]
+  followedBy Follow[]  @relation("FollowedTo")
+  following  Follow[]  @relation("FollowingTo")
 }
 
-model Horse {
-  id           Int           @id @default(autoincrement())
-  name         String
-  breed        String?
-  birthDate    DateTime?
-  performances Performance[]
-  Bet          Bet[]
+model Post {
+  id       String    @id @default(uuid())
+  title    String
+  content  String?
+  authorId String
+  author   User      @relation(fields: [authorId], references: [id])
+  comments Comment[]
+  likes    Like[]
 }
 
-model Race {
-  id           Int           @id @default(autoincrement())
-  name         String
-  location     String
-  scheduledAt  DateTime
-  performances Performance[]
-  bets         Bet[]
+model Comment {
+  id       String @id @default(uuid())
+  text     String
+  postId   String
+  post     Post   @relation(fields: [postId], references: [id])
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id])
 }
 
-model Performance {
-  id       Int    @id @default(autoincrement())
-  position Int?
-  time     Float?
-  horseId  Int
-  raceId   Int
-  horse    Horse  @relation(fields: [horseId], references: [id])
-  race     Race   @relation(fields: [raceId], references: [id])
+model Like {
+  id     String @id @default(uuid())
+  postId String
+  post   Post   @relation(fields: [postId], references: [id])
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
 }
 
-model Bet {
-  id      Int     @id @default(autoincrement())
-  amount  Float
-  betType BetType
-  userId  String
-  raceId  Int
-  horseId Int
-  user    User    @relation(fields: [userId], references: [id])
-  race    Race    @relation(fields: [raceId], references: [id])
-  horse   Horse   @relation(fields: [horseId], references: [id])
-}
-
-enum BetType {
-  WIN
-  PLACE
-  SHOW
+model Follow {
+  followerId String @id
+  followedId String
+  follower   User   @relation("FollowingTo", fields: [followerId], references: [id])
+  followed   User   @relation("FollowedTo", fields: [followedId], references: [id])
 }
